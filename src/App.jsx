@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Moon, Sliders, Wind, BookOpen } from 'lucide-react';
 import { StarfieldCanvas } from './components/StarfieldCanvas';
@@ -12,6 +12,8 @@ import { AdSenseBanner } from './components/AdSenseBanner';
 import { Footer } from './components/Footer';
 import { ModalReader } from './components/ModalReader';
 import { audioEngine } from './services/audioEngine';
+import { sleepArticles } from './data/articles';
+import { policyDocs } from './data/policies';
 
 const INSTRUMENT_TABS = [
   { id: 'calculator', label: '수면 시계', icon: Moon },
@@ -20,16 +22,55 @@ const INSTRUMENT_TABS = [
   { id: 'articles', label: '수면 노트', icon: BookOpen }
 ];
 
+function getInitialStateFromUrl() {
+  if (typeof window === 'undefined') return { tab: 'calculator', modal: null };
+  const params = new URLSearchParams(window.location.search);
+  const tabParam = params.get('tab');
+  const articleParam = params.get('article');
+  const policyParam = params.get('policy');
+
+  let tab = 'calculator';
+  const validTabs = ['calculator', 'sounds', 'breathing', 'articles'];
+  if (tabParam && validTabs.includes(tabParam)) {
+    tab = tabParam;
+  }
+
+  let modal = null;
+  if (articleParam) {
+    tab = 'articles';
+    const foundArticle = sleepArticles.find((a) => a.id === articleParam);
+    if (foundArticle) {
+      modal = {
+        category: foundArticle.category,
+        title: foundArticle.title,
+        content: foundArticle.content
+      };
+    }
+  } else if (policyParam) {
+    const policy = policyDocs[policyParam];
+    if (policy) {
+      modal = {
+        category: '정책 및 법적 고지',
+        title: policy.title,
+        content: policy.content
+      };
+    }
+  }
+
+  return { tab, modal };
+}
+
 export function App() {
-  const [activeTab, setActiveTab] = useState('calculator');
+  const [initial] = useState(getInitialStateFromUrl);
+  const [activeTab, setActiveTab] = useState(initial.tab);
   const [activeSoundCount, setActiveSoundCount] = useState(0);
   const [timerText, setTimerText] = useState(null);
 
   // Modal State
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalCategory, setModalCategory] = useState('');
-  const [modalTitle, setModalTitle] = useState('');
-  const [modalContent, setModalContent] = useState('');
+  const [modalOpen, setModalOpen] = useState(Boolean(initial.modal));
+  const [modalCategory, setModalCategory] = useState(initial.modal?.category || '');
+  const [modalTitle, setModalTitle] = useState(initial.modal?.title || '');
+  const [modalContent, setModalContent] = useState(initial.modal?.content || '');
 
   const handleOpenArticle = (article) => {
     setModalCategory(article.category);
@@ -44,6 +85,24 @@ export function App() {
     setModalContent(content);
     setModalOpen(true);
   };
+
+  // Browser Navigation Listener (PopState)
+  useEffect(() => {
+    const handlePopState = () => {
+      const state = getInitialStateFromUrl();
+      setActiveTab(state.tab);
+      if (state.modal) {
+        setModalCategory(state.modal.category);
+        setModalTitle(state.modal.title);
+        setModalContent(state.modal.content);
+        setModalOpen(true);
+      } else {
+        setModalOpen(false);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const handleStopAll = () => {
     audioEngine.stopAll();
