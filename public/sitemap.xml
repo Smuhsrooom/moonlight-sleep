@@ -8,61 +8,85 @@
     <priority>1.0</priority>
   </url>
   
-  <!-- 기능 탭 -->
+  <!-- 4대 메인 기능 페이지 (Clean Path) -->
   <url>
-    <loc>https://www.moonlightsleep.xyz/?tab=calculator</loc>
+    <loc>https://www.moonlightsleep.xyz/calculator</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.moonlightsleep.xyz/?tab=sounds</loc>
+    <loc>https://www.moonlightsleep.xyz/sounds</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.moonlightsleep.xyz/?tab=breathing</loc>
+    <loc>https://www.moonlightsleep.xyz/breathing</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.moonlightsleep.xyz/?tab=articles</loc>
+    <loc>https://www.moonlightsleep.xyz/articles</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- 수면 의학 전문 칼럼 4편 -->
+  <!-- 수면 의학 전문 칼럼 4편 (Clean Path) -->
   <url>
-    <loc>https://www.moonlightsleep.xyz/?article=sleep-cycle-science</loc>
+    <loc>https://www.moonlightsleep.xyz/articles/sleep-cycle-science</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.moonlightsleep.xyz/?article=478-breathing-method</loc>
+    <loc>https://www.moonlightsleep.xyz/articles/478-breathing-method</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.moonlightsleep.xyz/?article=pink-brown-noise-delta</loc>
+    <loc>https://www.moonlightsleep.xyz/articles/pink-brown-noise-delta</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.moonlightsleep.xyz/?article=sleep-hygiene-checklist</loc>
+    <loc>https://www.moonlightsleep.xyz/articles/sleep-hygiene-checklist</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- 애드센스 필수 정책 -->
+  <!-- 정책 및 서비스 안내 페이지 (Clean Path) -->
   <url>
-    <loc>https://www.moonlightsleep.xyz/?policy=privacy</loc>
+    <loc>https://www.moonlightsleep.xyz/about</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.moonlightsleep.xyz/contact</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.moonlightsleep.xyz/disclaimer</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.moonlightsleep.xyz/privacy</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.moonlightsleep.xyz/terms</loc>
     <lastmod>2026-09-02</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>

@@ -15,6 +15,144 @@ import { audioEngine } from './services/audioEngine';
 import { sleepArticles } from './data/articles';
 import { policyDocs } from './data/policies';
 
+const CANONICAL_DOMAIN = 'https://www.moonlightsleep.xyz';
+
+const TAB_SEO_META = {
+  calculator: {
+    title: '달빛수면 (Moonlight Sleep) - 90분 수면 주기 계산기 & 취침 알람',
+    description: '실시간 달의 위상과 90분 울트라디안 수면 주기 계산기로 가장 개운한 기상·취침 시각을 찾아드립니다.',
+    path: '/calculator'
+  },
+  sounds: {
+    title: '사운드 믹서 (Web Audio 실시간 합성) - 달빛수면',
+    description: '창밖 빗소리, 잔잔한 파도, 숲속 밤바람, 모닥불, 브라운/핑크 노이즈 및 432Hz 델타파를 실시간으로 믹싱하세요.',
+    path: '/sounds'
+  },
+  breathing: {
+    title: '4-7-8 유기적 호흡 가이드 & 싱잉볼 - 달빛수면',
+    description: '앤드루 와일 박사의 4-7-8 자율신경 이완 호흡법과 432Hz 티베트 싱잉볼 배음으로 1분 안에 심신을 안정시키세요.',
+    path: '/breathing'
+  },
+  articles: {
+    title: '수면 과학 전문 노트 & 라이브러리 - 달빛수면',
+    description: '하버드·스탠퍼드 수면 의학 논문 기반 90분 수면 주기, 바이노럴 비트, 수면 위생 10계명 칼럼을 확인하세요.',
+    path: '/articles'
+  }
+};
+
+function updateSeoMeta({ title, description, path }) {
+  if (typeof document === 'undefined') return;
+  const canonicalUrl = `${CANONICAL_DOMAIN}${path}`;
+
+  document.title = title;
+
+  // Meta Description
+  let descTag = document.querySelector('meta[name="description"]');
+  if (!descTag) {
+    descTag = document.createElement('meta');
+    descTag.setAttribute('name', 'description');
+    document.head.appendChild(descTag);
+  }
+  descTag.setAttribute('content', description);
+
+  // Link Canonical
+  let canonicalTag = document.querySelector('link[rel="canonical"]');
+  if (!canonicalTag) {
+    canonicalTag = document.createElement('link');
+    canonicalTag.setAttribute('rel', 'canonical');
+    document.head.appendChild(canonicalTag);
+  }
+  canonicalTag.setAttribute('href', canonicalUrl);
+
+  // Open Graph Dynamic Tags
+  const ogTags = [
+    { property: 'og:title', content: title },
+    { property: 'og:description', content: description },
+    { property: 'og:url', content: canonicalUrl }
+  ];
+  ogTags.forEach(({ property, content }) => {
+    let tag = document.querySelector(`meta[property="${property}"]`);
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.setAttribute('property', property);
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute('content', content);
+  });
+}
+
+function parseCurrentUrl() {
+  if (typeof window === 'undefined') {
+    return { tab: 'calculator', modal: null, seo: TAB_SEO_META.calculator };
+  }
+
+  const pathname = window.location.pathname.replace(/\/$/, '') || '/';
+  const params = new URLSearchParams(window.location.search);
+
+  // 1. Articles Clean Path: /articles/:id (or fallback ?article=:id)
+  const articleMatch = pathname.match(/^\/articles\/([a-zA-Z0-9_-]+)$/);
+  const articleQuery = params.get('article');
+  const targetArticleId = (articleMatch && articleMatch[1]) || articleQuery;
+
+  if (targetArticleId) {
+    const foundArticle = sleepArticles.find((a) => a.id === targetArticleId);
+    if (foundArticle) {
+      return {
+        tab: 'articles',
+        modal: {
+          category: foundArticle.category,
+          title: foundArticle.title,
+          content: foundArticle.content
+        },
+        seo: {
+          title: `${foundArticle.title} - 달빛수면`,
+          description: foundArticle.summary,
+          path: `/articles/${foundArticle.id}`
+        }
+      };
+    }
+  }
+
+  // 2. Policies Clean Path: /privacy, /terms, /disclaimer, /about, /contact (or fallback ?policy=:key)
+  const policyKeyMatch = pathname.replace(/^\//, '');
+  const policyQuery = params.get('policy');
+  const targetPolicyKey = policyDocs[policyKeyMatch] ? policyKeyMatch : (policyDocs[policyQuery] ? policyQuery : null);
+
+  if (targetPolicyKey) {
+    const doc = policyDocs[targetPolicyKey];
+    return {
+      tab: 'calculator',
+      modal: {
+        category: '정책 및 법적 고지',
+        title: doc.title,
+        content: doc.content
+      },
+      seo: {
+        title: `${doc.title} - 달빛수면`,
+        description: '달빛수면 프로젝트 소개, 이용약관, 개인정보처리방침 및 의학 면책조항 안내.',
+        path: `/${targetPolicyKey}`
+      }
+    };
+  }
+
+  // 3. Tab Clean Paths: /calculator, /sounds, /breathing, /articles (or fallback ?tab=:id)
+  let targetTab = 'calculator';
+  const cleanTab = pathname.replace(/^\//, '');
+  const queryTab = params.get('tab');
+
+  if (TAB_SEO_META[cleanTab]) {
+    targetTab = cleanTab;
+  } else if (TAB_SEO_META[queryTab]) {
+    targetTab = queryTab;
+  }
+
+  return {
+    tab: targetTab,
+    modal: null,
+    seo: TAB_SEO_META[targetTab]
+  };
+}
+
 const INSTRUMENT_TABS = [
   { id: 'calculator', label: '수면 시계', icon: Moon },
   { id: 'sounds', label: '사운드 믹서', icon: Sliders },
@@ -22,46 +160,8 @@ const INSTRUMENT_TABS = [
   { id: 'articles', label: '수면 노트', icon: BookOpen }
 ];
 
-function getInitialStateFromUrl() {
-  if (typeof window === 'undefined') return { tab: 'calculator', modal: null };
-  const params = new URLSearchParams(window.location.search);
-  const tabParam = params.get('tab');
-  const articleParam = params.get('article');
-  const policyParam = params.get('policy');
-
-  let tab = 'calculator';
-  const validTabs = ['calculator', 'sounds', 'breathing', 'articles'];
-  if (tabParam && validTabs.includes(tabParam)) {
-    tab = tabParam;
-  }
-
-  let modal = null;
-  if (articleParam) {
-    tab = 'articles';
-    const foundArticle = sleepArticles.find((a) => a.id === articleParam);
-    if (foundArticle) {
-      modal = {
-        category: foundArticle.category,
-        title: foundArticle.title,
-        content: foundArticle.content
-      };
-    }
-  } else if (policyParam) {
-    const policy = policyDocs[policyParam];
-    if (policy) {
-      modal = {
-        category: '정책 및 법적 고지',
-        title: policy.title,
-        content: policy.content
-      };
-    }
-  }
-
-  return { tab, modal };
-}
-
 export function App() {
-  const [initial] = useState(getInitialStateFromUrl);
+  const [initial] = useState(parseCurrentUrl);
   const [activeTab, setActiveTab] = useState(initial.tab);
   const [activeSoundCount, setActiveSoundCount] = useState(0);
   const [timerText, setTimerText] = useState(null);
@@ -72,24 +172,12 @@ export function App() {
   const [modalTitle, setModalTitle] = useState(initial.modal?.title || '');
   const [modalContent, setModalContent] = useState(initial.modal?.content || '');
 
-  const handleOpenArticle = (article) => {
-    setModalCategory(article.category);
-    setModalTitle(article.title);
-    setModalContent(article.content);
-    setModalOpen(true);
-  };
-
-  const handleOpenPolicy = (key, title, content) => {
-    setModalCategory('정책 및 법적 고지');
-    setModalTitle(title);
-    setModalContent(content);
-    setModalOpen(true);
-  };
-
-  // Browser Navigation Listener (PopState)
+  // Dynamic SEO Synchronization
   useEffect(() => {
+    updateSeoMeta(initial.seo);
+
     const handlePopState = () => {
-      const state = getInitialStateFromUrl();
+      const state = parseCurrentUrl();
       setActiveTab(state.tab);
       if (state.modal) {
         setModalCategory(state.modal.category);
@@ -99,10 +187,63 @@ export function App() {
       } else {
         setModalOpen(false);
       }
+      updateSeoMeta(state.seo);
     };
+
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [initial.seo]);
+
+  const handleSelectTab = (tabId, updateHistory = true) => {
+    setActiveTab(tabId);
+    setModalOpen(false);
+    const seo = TAB_SEO_META[tabId] || TAB_SEO_META.calculator;
+    updateSeoMeta(seo);
+    if (updateHistory && typeof window !== 'undefined') {
+      window.history.pushState(null, '', seo.path);
+    }
+  };
+
+  const handleOpenArticle = (article, updateHistory = true) => {
+    setModalCategory(article.category);
+    setModalTitle(article.title);
+    setModalContent(article.content);
+    setModalOpen(true);
+    const seo = {
+      title: `${article.title} - 달빛수면`,
+      description: article.summary,
+      path: `/articles/${article.id}`
+    };
+    updateSeoMeta(seo);
+    if (updateHistory && typeof window !== 'undefined') {
+      window.history.pushState(null, '', seo.path);
+    }
+  };
+
+  const handleOpenPolicy = (key, title, content, updateHistory = true) => {
+    setModalCategory('정책 및 법적 고지');
+    setModalTitle(title);
+    setModalContent(content);
+    setModalOpen(true);
+    const seo = {
+      title: `${title} - 달빛수면`,
+      description: '달빛수면 프로젝트 소개, 이용약관, 개인정보처리방침 및 의학 면책조항 안내.',
+      path: `/${key}`
+    };
+    updateSeoMeta(seo);
+    if (updateHistory && typeof window !== 'undefined') {
+      window.history.pushState(null, '', seo.path);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    const seo = TAB_SEO_META[activeTab] || TAB_SEO_META.calculator;
+    updateSeoMeta(seo);
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', seo.path);
+    }
+  };
 
   const handleStopAll = () => {
     audioEngine.stopAll();
@@ -117,7 +258,7 @@ export function App() {
 
       {/* Fixed Compact Header */}
       <Header
-        onSelectTab={(tabId) => setActiveTab(tabId)}
+        onSelectTab={(tabId) => handleSelectTab(tabId)}
         activeSoundCount={activeSoundCount}
         timerText={timerText}
         onStopAll={handleStopAll}
@@ -138,7 +279,7 @@ export function App() {
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleSelectTab(tab.id)}
                   className={`relative px-4 sm:px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer ${
                     isActive ? 'text-slate-950 font-bold' : 'text-slate-400 hover:text-slate-200'
                   }`}
@@ -205,7 +346,7 @@ export function App() {
       {/* Universal Modal Reader */}
       <ModalReader
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleCloseModal}
         category={modalCategory}
         title={modalTitle}
         content={modalContent}
@@ -215,4 +356,3 @@ export function App() {
 }
 
 export default App;
-

@@ -32,12 +32,24 @@ export const policyDocs = {
     `
   },
   about: {
-    title: "달빛수면 소개 및 연락처 (About & Contact)",
+    title: "달빛수면 소개 (About Us)",
     content: `
       <h3>달빛수면 (Moonlight Sleep) 프로젝트 소개</h3>
-      <p>달빛수면은 현대인의 불면과 피로를 해소하고 건강한 수면 위생(Sleep Hygiene)을 보급하기 위해 시작된 웰니스 오픈 프로젝트입니다.</p>
-      <p>외부 트래커나 앱 설치 없이, 웹 브라우저에서 즉시 실시간 오디오 합성과 정밀한 수면 주기 계산을 무료로 경험하실 수 있습니다.</p>
-      <p><strong>문의 및 피드백:</strong> contact@moonlightsleep.app</p>
+      <p>달빛수면은 현대인의 불면과 피로를 해소하고 건강한 수면 위생(Sleep Hygiene)을 보급하기 위해 시작된 디지털 웰니스 오픈 프로젝트입니다.</p>
+      <p>외부 트래커나 앱 설치 없이, 웹 브라우저에서 즉시 실시간 Web Audio 파동 합성과 정밀한 90분 울트라디안 수면 주기 계산을 완전 무료로 경험하실 수 있습니다.</p>
+      <p>모든 데이터는 서버로 전송되지 않고 사용자의 로컬 브라우저에서만 안전하게 보관되는 로컬 우선(Local-First) 원칙을 고수합니다.</p>
+    `
+  },
+  contact: {
+    title: "고객 문의 및 피드백 (Contact Us)",
+    content: `
+      <h3>달빛수면 팀에 문의하기</h3>
+      <p>서비스 개선 아이디어, 사운드 믹서 프리셋 건의, 버그 제보, 제휴 문의는 언제든지 환영합니다.</p>
+      <ul>
+        <li><strong>공식 이메일:</strong> contact@moonlightsleep.xyz</li>
+        <li><strong>응답 시간:</strong> 영업일 기준 24~48시간 이내 회신</li>
+        <li><strong>개발 및 운영:</strong> Moonlight Sleep Open Wellness Team</li>
+      </ul>
     `
   }
 };
